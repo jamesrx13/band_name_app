@@ -40,17 +40,35 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  ListTile bandTitle(Band banda) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.blue[100],
-        child: Text(banda.name.substring(0, 2)),
-      ),
-      title: Text(banda.name),
-      trailing: Text('${banda.votes}'),
-      onTap: () {
-        debugPrint(banda.name);
+  Widget bandTitle(Band banda) {
+    return Dismissible(
+      key: Key(banda.id),
+      direction: DismissDirection.startToEnd,
+      onDismissed: (direction) {
+        // LLamar el borrado
       },
+      background: Container(
+        color: Colors.red,
+        padding: const EdgeInsets.only(left: 10.0),
+        child: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Delete Band',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.blue[100],
+          child: Text(banda.name.substring(0, 2)),
+        ),
+        title: Text(banda.name),
+        trailing: Text('${banda.votes}'),
+        onTap: () {
+          debugPrint(banda.name);
+        },
+      ),
     );
   }
 
@@ -101,9 +119,10 @@ class _HomePageState extends State<HomePage> {
 
   _addBandToList(String name) {
     if (name.length > 1) {
-      // ADD
+      setState(() {
+        bands.add(Band(id: '${bands.length + 1}', name: name, votes: 1));
+      });
     }
-
     Navigator.pop(context);
   }
 }
