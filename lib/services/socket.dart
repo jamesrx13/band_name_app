@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes, constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -7,19 +9,34 @@ enum ServerStatus {
   Connecting,
 }
 
-class Socket with ChangeNotifier {
+class SocketService with ChangeNotifier {
   ServerStatus _serverStatus = ServerStatus.Connecting;
+  late IO.Socket _socket;
 
-  Socket() {
+  ServerStatus get serverStatus => _serverStatus;
+  IO.Socket get socket => _socket;
+
+  SocketService() {
     _initConfig();
   }
 
   void _initConfig() {
-    IO.Socket socket = IO.io("http://172.20.10.4:3000", {
+    _socket = IO.io("http://172.20.10.4:3000", {
       'transports': ['websocket'],
       'autoConnect': true
     });
-    socket.on('connect', (data) => {debugPrint('Connect')});
-    socket.on('disconnect', (data) => debugPrint('Desconectado'));
+    _socket.on('connect', (_) {
+      _serverStatus = ServerStatus.Online;
+      notifyListeners();
+    });
+    _socket.on('disconnect', (_) {
+      _serverStatus = ServerStatus.Offline;
+      notifyListeners();
+    });
+
+    // _socket.on('new-message', (payload) {
+    //   debugPrint('new-message:');
+    //   debugPrint('nombre: ${payload['nombre']}');
+    // });
   }
 }
